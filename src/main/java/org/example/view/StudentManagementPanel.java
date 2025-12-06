@@ -50,40 +50,41 @@ public class StudentManagementPanel extends JPanel {
     }
     
     private JPanel createToolbar() {
-        JPanel toolbar = new JPanel(new BorderLayout(10, 0));
+        JPanel toolbar = new JPanel();
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
         toolbar.setOpaque(false);
         toolbar.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         
-        // Left: Search
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        leftPanel.setOpaque(false);
+        // Top row: Search
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
+        topRow.setOpaque(false);
         
-        searchField = new JTextField(25);
-        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        searchField = new JTextField(20);
+        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         searchField.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(200, 200, 220)),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
+            BorderFactory.createEmptyBorder(6, 10, 6, 10)
         ));
         
-        JButton searchBtn = createStyledButton("🔍 Tìm Kiếm", new Color(100, 149, 237));
+        JButton searchBtn = createStyledButton("🔍 Tìm", new Color(100, 149, 237));
         searchBtn.addActionListener(e -> searchStudents());
         
         statusFilter = new JComboBox<>(new String[]{"Tất cả", "Đang học", "Đã nghỉ"});
-        statusFilter.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        statusFilter.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         statusFilter.addActionListener(e -> filterByStatus());
         
-        leftPanel.add(new JLabel("Tìm kiếm:"));
-        leftPanel.add(searchField);
-        leftPanel.add(searchBtn);
-        leftPanel.add(Box.createHorizontalStrut(20));
-        leftPanel.add(new JLabel("Trạng thái:"));
-        leftPanel.add(statusFilter);
+        topRow.add(new JLabel("Tìm:"));
+        topRow.add(searchField);
+        topRow.add(searchBtn);
+        topRow.add(Box.createHorizontalStrut(10));
+        topRow.add(new JLabel("Trạng thái:"));
+        topRow.add(statusFilter);
         
-        // Right: Actions
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        rightPanel.setOpaque(false);
+        // Bottom row: Actions
+        JPanel bottomRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
+        bottomRow.setOpaque(false);
         
-        JButton addBtn = createStyledButton("➕ Thêm Học Sinh", new Color(40, 167, 69));
+        JButton addBtn = createStyledButton("➕ Thêm", new Color(40, 167, 69));
         addBtn.addActionListener(e -> showAddStudentDialog());
         
         JButton editBtn = createStyledButton("✏️ Sửa", new Color(255, 193, 7));
@@ -92,16 +93,16 @@ public class StudentManagementPanel extends JPanel {
         JButton deleteBtn = createStyledButton("🗑️ Xóa", new Color(220, 53, 69));
         deleteBtn.addActionListener(e -> deleteStudent());
         
-        JButton refreshBtn = createStyledButton("🔄 Làm Mới", new Color(108, 117, 125));
+        JButton refreshBtn = createStyledButton("🔄 Refresh", new Color(108, 117, 125));
         refreshBtn.addActionListener(e -> loadStudents());
         
-        rightPanel.add(addBtn);
-        rightPanel.add(editBtn);
-        rightPanel.add(deleteBtn);
-        rightPanel.add(refreshBtn);
+        bottomRow.add(addBtn);
+        bottomRow.add(editBtn);
+        bottomRow.add(deleteBtn);
+        bottomRow.add(refreshBtn);
         
-        toolbar.add(leftPanel, BorderLayout.WEST);
-        toolbar.add(rightPanel, BorderLayout.EAST);
+        toolbar.add(topRow);
+        toolbar.add(bottomRow);
         
         return toolbar;
     }
@@ -131,10 +132,33 @@ public class StudentManagementPanel extends JPanel {
         
         // Header style
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setBackground(new Color(100, 149, 237));
         header.setForeground(Color.WHITE);
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setPreferredSize(new Dimension(header.getWidth(), 45));
+        header.setReorderingAllowed(false);
+        header.setOpaque(true);
+        
+        // Make header text more visible - custom renderer
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setBackground(new Color(100, 149, 237));
+                setForeground(Color.WHITE);
+                setFont(new Font("Segoe UI", Font.BOLD, 14));
+                setHorizontalAlignment(JLabel.CENTER);
+                setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                setOpaque(true);
+                return this;
+            }
+        };
+        
+        // Apply renderer to all columns
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
         
         // Center alignment for some columns
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();

@@ -24,7 +24,8 @@ public class RegisterForm extends JFrame {
 
         setTitle("Đăng kí tài khoản");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(400, 280);
+        setSize(550, 420);
+        setMinimumSize(new Dimension(500, 380));
         setLocationRelativeTo(null);
 
         initUI();
@@ -33,12 +34,13 @@ public class RegisterForm extends JFrame {
     private void initUI() {
         JPanel container = new JPanel(new BorderLayout());
         container.setBackground(new Color(245, 245, 250));
+        container.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
         add(container);
 
         // ===== TITLE =====
         JLabel title = new JLabel("ĐĂNG KÝ TÀI KHOẢN", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        title.setBorder(BorderFactory.createEmptyBorder(15, 0, 10, 0));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setBorder(BorderFactory.createEmptyBorder(20, 0, 25, 0));
         container.add(title, BorderLayout.NORTH);
 
         // ===== FORM =====
@@ -47,40 +49,55 @@ public class RegisterForm extends JFrame {
         container.add(formPanel, BorderLayout.CENTER);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Username
         gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("Username:"), gbc);
+        JLabel lblUsername = new JLabel("Username:");
+        lblUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        formPanel.add(lblUsername, gbc);
 
         gbc.gridx = 1;
-        txtUsername = new JTextField(18);
+        txtUsername = new JTextField(20);
+        txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtUsername.setPreferredSize(new Dimension(250, 35));
         formPanel.add(txtUsername, gbc);
 
         // Password
         gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Password:"), gbc);
+        JLabel lblPassword = new JLabel("Password:");
+        lblPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        formPanel.add(lblPassword, gbc);
 
         gbc.gridx = 1;
-        txtPassword = new JPasswordField(18);
+        txtPassword = new JPasswordField(20);
+        txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtPassword.setPreferredSize(new Dimension(250, 35));
         formPanel.add(txtPassword, gbc);
 
         // Confirm password
         gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Nhập lại password:"), gbc);
+        JLabel lblConfirm = new JLabel("Nhập lại password:");
+        lblConfirm.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        formPanel.add(lblConfirm, gbc);
 
         gbc.gridx = 1;
-        txtConfirmPassword = new JPasswordField(18);
+        txtConfirmPassword = new JPasswordField(20);
+        txtConfirmPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtConfirmPassword.setPreferredSize(new Dimension(250, 35));
         formPanel.add(txtConfirmPassword, gbc);
 
         // ===== REGISTER BUTTON =====
         btnRegister = new JButton("Đăng ký");
-        btnRegister.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnRegister.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnRegister.setBackground(new Color(70, 130, 180));
         btnRegister.setForeground(Color.WHITE);
         btnRegister.setFocusPainted(false);
         btnRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnRegister.setPreferredSize(new Dimension(250, 40));
+        btnRegister.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         // hover effect
         btnRegister.addMouseListener(new MouseAdapter() {

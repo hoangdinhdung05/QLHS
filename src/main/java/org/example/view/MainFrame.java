@@ -28,8 +28,10 @@ public class MainFrame extends JFrame {
     public MainFrame(String username, String role) {
         setTitle("Hệ Thống Quản Lý Dạy Thêm - HUE");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1300, 750);
+        setSize(1400, 850);
+        setMinimumSize(new Dimension(1200, 700));
         setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
         // Header & Sidebar
@@ -63,8 +65,8 @@ public class MainFrame extends JFrame {
     private void initScreens() {
         contentPanel.add(new StudentManagementPanel(), SCREEN_STUDENTS);
         contentPanel.add(new ClassManagementPanel(), SCREEN_CLASSES);
-        contentPanel.add(createModuleScreen("Điểm Danh & Học Phí"), SCREEN_ATTENDANCE);
-        contentPanel.add(createModuleScreen("Thanh Toán & Học Phí"), SCREEN_PAYMENTS);
+        contentPanel.add(new AttendanceManagementPanel(), SCREEN_ATTENDANCE);
+        contentPanel.add(new PaymentManagementPanel(), SCREEN_PAYMENTS);
         contentPanel.add(new DashboardPanel(), SCREEN_REPORTS);
         contentPanel.add(createModuleScreen("Cài Đặt Hệ Thống"), SCREEN_SETTINGS);
 

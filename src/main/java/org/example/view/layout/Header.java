@@ -13,7 +13,7 @@ public class Header extends JPanel {
     private final JButton btnExport;
 
     public Header(String username, String role) {
-        setPreferredSize(new Dimension(0, 70));
+        setPreferredSize(new Dimension(0, 80));
         setBackground(new Color(248, 249, 255));
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createMatteBorder(
@@ -30,26 +30,26 @@ public class Header extends JPanel {
         JPanel rightPanel = new JPanel();
         rightPanel.setOpaque(false);
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-        rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 24));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 24));
 
         // Hàng nút
-        JPanel actionRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        JPanel actionRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         actionRow.setOpaque(false);
 
         btnAdd = createPrimaryButton("+ Thêm");
-        btnEdit = createGhostButton("Sửa");
-        btnExport = createPrimaryButton("↑ Xuất Excel");
+        btnEdit = createGhostButton("✏ Sửa");
+        btnExport = createPrimaryButton("📊 Xuất Excel");
 
         actionRow.add(btnAdd);
         actionRow.add(btnEdit);
         actionRow.add(btnExport);
 
         // Hàng user info
-        JPanel userRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 2));
+        JPanel userRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 3));
         userRow.setOpaque(false);
         userInfoLabel = new JLabel(username + " (" + role + ")");
-        userInfoLabel.setForeground(new Color(120, 122, 150));
-        userInfoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        userInfoLabel.setForeground(new Color(100, 102, 130));
+        userInfoLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         userRow.add(userInfoLabel);
 
         rightPanel.add(actionRow);
@@ -62,21 +62,49 @@ public class Header extends JPanel {
     // ===== Style button =====
     private JButton createPrimaryButton(String text) {
         JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setBackground(new Color(113, 99, 248));
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(7, 16, 7, 16));
+        btn.setBorderPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(btn.getPreferredSize().width, 36));
+        
+        // Hover effect
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(100, 85, 230));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(113, 99, 248));
+            }
+        });
         return btn;
     }
 
     private JButton createGhostButton(String text) {
         JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setBackground(Color.WHITE);
         btn.setForeground(new Color(113, 99, 248));
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createLineBorder(new Color(113, 99, 248)));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(113, 99, 248), 2),
+            BorderFactory.createEmptyBorder(6, 16, 6, 16)
+        ));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(btn.getPreferredSize().width, 36));
+        
+        // Hover effect
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(240, 240, 255));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(Color.WHITE);
+            }
+        });
         return btn;
     }
 
