@@ -16,27 +16,88 @@ import java.util.List;
 public class ExcelExporter {
 
     /**
-     * Export danh sách học sinh ra Excel
+     * Export danh sách học sinh ra Excel với format đẹp
      */
     public static void exportStudentsToExcel(List<Student> students, String filePath) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Danh sách học sinh");
+
+        // Tạo title style
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 16);
+        titleFont.setColor(IndexedColors.WHITE.getIndex());
+        titleStyle.setFont(titleFont);
+        titleStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        titleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        titleStyle.setBorderBottom(BorderStyle.THIN);
+        titleStyle.setBorderTop(BorderStyle.THIN);
+        titleStyle.setBorderLeft(BorderStyle.THIN);
+        titleStyle.setBorderRight(BorderStyle.THIN);
+
+        // Tạo title row
+        Row titleRow = sheet.createRow(0);
+        titleRow.setHeight((short) 600);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DANH SÁCH HỌC SINH");
+        titleCell.setCellStyle(titleStyle);
+        sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(0, 0, 0, 9));
 
         // Tạo header style
         CellStyle headerStyle = workbook.createCellStyle();
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
         headerFont.setFontHeightInPoints((short) 12);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
         headerStyle.setFont(headerFont);
-        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerStyle.setFillForegroundColor(IndexedColors.ROYAL_BLUE.getIndex());
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         headerStyle.setBorderBottom(BorderStyle.THIN);
         headerStyle.setBorderTop(BorderStyle.THIN);
         headerStyle.setBorderLeft(BorderStyle.THIN);
         headerStyle.setBorderRight(BorderStyle.THIN);
 
+        // Tạo data style
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        // Tạo center style
+        CellStyle centerStyle = workbook.createCellStyle();
+        centerStyle.cloneStyleFrom(dataStyle);
+        centerStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        // Tạo status active style
+        CellStyle activeStyle = workbook.createCellStyle();
+        activeStyle.cloneStyleFrom(centerStyle);
+        activeStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+        activeStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font activeFont = workbook.createFont();
+        activeFont.setColor(IndexedColors.DARK_GREEN.getIndex());
+        activeFont.setBold(true);
+        activeStyle.setFont(activeFont);
+
+        // Tạo status inactive style
+        CellStyle inactiveStyle = workbook.createCellStyle();
+        inactiveStyle.cloneStyleFrom(centerStyle);
+        inactiveStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+        inactiveStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font inactiveFont = workbook.createFont();
+        inactiveFont.setColor(IndexedColors.DARK_RED.getIndex());
+        inactiveFont.setBold(true);
+        inactiveStyle.setFont(inactiveFont);
+
         // Tạo header row
-        Row headerRow = sheet.createRow(0);
+        Row headerRow = sheet.createRow(1);
+        headerRow.setHeight((short) 400);
         String[] headers = {"STT", "Mã học sinh", "Họ tên", "Ngày sinh", "Giới tính", 
                            "Số điện thoại", "Địa chỉ", "Tên phụ huynh", "SĐT phụ huynh", "Trạng thái"};
         
@@ -48,26 +109,71 @@ public class ExcelExporter {
 
         // Tạo data rows
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        int rowNum = 1;
+        int rowNum = 2;
+        int stt = 1;
         for (Student student : students) {
             Row row = sheet.createRow(rowNum++);
+            row.setHeight((short) 350);
             
-            row.createCell(0).setCellValue(rowNum - 1);
-            row.createCell(1).setCellValue(student.getStudentCode());
-            row.createCell(2).setCellValue(student.getFullName());
-            row.createCell(3).setCellValue(student.getDateOfBirth() != null ? 
-                                          student.getDateOfBirth().format(dateFormatter) : "");
-            row.createCell(4).setCellValue(student.getGender());
-            row.createCell(5).setCellValue(student.getPhone());
-            row.createCell(6).setCellValue(student.getAddress());
-            row.createCell(7).setCellValue(student.getParentName());
-            row.createCell(8).setCellValue(student.getParentPhone());
-            row.createCell(9).setCellValue(student.getStatus());
+            // STT
+            Cell sttCell = row.createCell(0);
+            sttCell.setCellValue(stt++);
+            sttCell.setCellStyle(centerStyle);
+            
+            // Mã học sinh
+            Cell codeCell = row.createCell(1);
+            codeCell.setCellValue(student.getStudentCode());
+            codeCell.setCellStyle(centerStyle);
+            
+            // Họ tên
+            Cell nameCell = row.createCell(2);
+            nameCell.setCellValue(student.getFullName());
+            nameCell.setCellStyle(dataStyle);
+            
+            // Ngày sinh
+            Cell dobCell = row.createCell(3);
+            dobCell.setCellValue(student.getDateOfBirth() != null ? 
+                                student.getDateOfBirth().format(dateFormatter) : "");
+            dobCell.setCellStyle(centerStyle);
+            
+            // Giới tính
+            Cell genderCell = row.createCell(4);
+            genderCell.setCellValue(student.getGender());
+            genderCell.setCellStyle(centerStyle);
+            
+            // Số điện thoại
+            Cell phoneCell = row.createCell(5);
+            phoneCell.setCellValue(student.getPhone() != null ? student.getPhone() : "");
+            phoneCell.setCellStyle(centerStyle);
+            
+            // Địa chỉ
+            Cell addressCell = row.createCell(6);
+            addressCell.setCellValue(student.getAddress() != null ? student.getAddress() : "");
+            addressCell.setCellStyle(dataStyle);
+            
+            // Tên phụ huynh
+            Cell parentNameCell = row.createCell(7);
+            parentNameCell.setCellValue(student.getParentName() != null ? student.getParentName() : "");
+            parentNameCell.setCellStyle(dataStyle);
+            
+            // SĐT phụ huynh
+            Cell parentPhoneCell = row.createCell(8);
+            parentPhoneCell.setCellValue(student.getParentPhone());
+            parentPhoneCell.setCellStyle(centerStyle);
+            
+            // Trạng thái
+            Cell statusCell = row.createCell(9);
+            String statusText = "ACTIVE".equals(student.getStatus()) ? "Đang học" : "Đã nghỉ";
+            statusCell.setCellValue(statusText);
+            statusCell.setCellStyle("ACTIVE".equals(student.getStatus()) ? activeStyle : inactiveStyle);
         }
 
         // Auto-size columns
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
+            // Add some padding
+            int currentWidth = sheet.getColumnWidth(i);
+            sheet.setColumnWidth(i, currentWidth + 1000);
         }
 
         // Write to file

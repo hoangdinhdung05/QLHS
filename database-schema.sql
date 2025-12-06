@@ -20,14 +20,40 @@ CREATE TABLE IF NOT EXISTS students (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Bảng lớp học
+-- Bảng lớp học (cập nhật cho dạy thêm offline)
 CREATE TABLE IF NOT EXISTS classes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     class_code VARCHAR(50) UNIQUE NOT NULL,
     class_name VARCHAR(100) NOT NULL,
     subject VARCHAR(100) NOT NULL,
+    teacher_name VARCHAR(100), -- Tên giáo viên
+    location VARCHAR(200), -- Địa điểm dạy (địa chỉ cụ thể)
+    time_slot VARCHAR(50), -- Khung giờ (VD: "18:00-20:00")
+    day_of_week VARCHAR(50), -- Thứ trong tuần (VD: "2,4,6" hoặc "3,5,7")
+    max_students INTEGER DEFAULT 10, -- Số lượng học sinh tối đa
+    current_students INTEGER DEFAULT 0, -- Số học sinh hiện tại
     fee_per_session DECIMAL(10, 2) NOT NULL, -- Học phí mỗi buổi
-    schedule VARCHAR(200), -- Lịch học (VD: "Thứ 2, 4, 6 - 18:00-19:30")
+    schedule VARCHAR(200), -- Lịch học tổng quan
+    status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, INACTIVE, FULL
+    class_type VARCHAR(20) DEFAULT 'GROUP', -- INDIVIDUAL (1-1), SMALL_GROUP (1-2), GROUP (3-10)
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng giáo viên
+CREATE TABLE IF NOT EXISTS teachers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    teacher_code VARCHAR(50) UNIQUE NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    date_of_birth DATE,
+    gender VARCHAR(10),
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(100),
+    address TEXT,
+    specialization VARCHAR(200), -- Chuyên môn (Toán, Lý, Hóa, Anh...)
+    qualification VARCHAR(100), -- Trình độ (Cử nhân, Thạc sĩ, Tiến sĩ...)
+    years_of_experience INTEGER, -- Số năm kinh nghiệm
     status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, INACTIVE
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -96,8 +122,11 @@ CREATE TABLE IF NOT EXISTS payments (
 -- ===============================================
 CREATE INDEX IF NOT EXISTS idx_students_code ON students(student_code);
 CREATE INDEX IF NOT EXISTS idx_students_status ON students(status);
+CREATE INDEX IF NOT EXISTS idx_teachers_code ON teachers(teacher_code);
+CREATE INDEX IF NOT EXISTS idx_teachers_status ON teachers(status);
 CREATE INDEX IF NOT EXISTS idx_classes_code ON classes(class_code);
 CREATE INDEX IF NOT EXISTS idx_classes_status ON classes(status);
+CREATE INDEX IF NOT EXISTS idx_classes_type ON classes(class_type);
 CREATE INDEX IF NOT EXISTS idx_lesson_sessions_date ON lesson_sessions(lesson_date);
 CREATE INDEX IF NOT EXISTS idx_lesson_sessions_class ON lesson_sessions(class_id);
 CREATE INDEX IF NOT EXISTS idx_attendances_lesson ON attendances(lesson_session_id);

@@ -4,17 +4,24 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Entity đại diện cho một lớp học
+ * Entity đại diện cho một lớp học dạy thêm offline
  */
 public class ClassEntity {
     private Long id;
-    private String classCode;
-    private String className;
-    private String subject;
-    private BigDecimal feePerSession;
-    private String schedule;
-    private String status; // ACTIVE, INACTIVE
-    private String notes;
+    private String classCode;           // Mã lớp học
+    private String className;           // Tên lớp học
+    private String subject;             // Môn học
+    private String teacherName;         // Tên giáo viên
+    private String location;            // Địa điểm dạy
+    private String timeSlot;            // Khung giờ (VD: "18:00-20:00")
+    private String dayOfWeek;           // Thứ trong tuần (VD: "2,4,6" hoặc "3,5,7")
+    private Integer maxStudents;        // Số lượng học sinh tối đa (1-2 học sinh hoặc nhóm)
+    private Integer currentStudents;    // Số học sinh hiện tại
+    private BigDecimal feePerSession;   // Học phí mỗi buổi
+    private String schedule;            // Lịch học tổng quan
+    private String status;              // ACTIVE, INACTIVE, FULL
+    private String classType;           // INDIVIDUAL (1-1), SMALL_GROUP (1-2), GROUP (3-10)
+    private String notes;               // Ghi chú
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -114,6 +121,62 @@ public class ClassEntity {
         this.updatedAt = updatedAt;
     }
 
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+
+    public void setTimeSlot(String timeSlot) {
+        this.timeSlot = timeSlot;
+    }
+
+    public String getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    public Integer getMaxStudents() {
+        return maxStudents;
+    }
+
+    public void setMaxStudents(Integer maxStudents) {
+        this.maxStudents = maxStudents;
+    }
+
+    public Integer getCurrentStudents() {
+        return currentStudents;
+    }
+
+    public void setCurrentStudents(Integer currentStudents) {
+        this.currentStudents = currentStudents;
+    }
+
+    public String getClassType() {
+        return classType;
+    }
+
+    public void setClassType(String classType) {
+        this.classType = classType;
+    }
+
     @Override
     public String toString() {
         return "ClassEntity{" +
@@ -121,9 +184,15 @@ public class ClassEntity {
                 ", classCode='" + classCode + '\'' +
                 ", className='" + className + '\'' +
                 ", subject='" + subject + '\'' +
+                ", teacherName='" + teacherName + '\'' +
+                ", location='" + location + '\'' +
+                ", timeSlot='" + timeSlot + '\'' +
+                ", dayOfWeek='" + dayOfWeek + '\'' +
+                ", maxStudents=" + maxStudents +
+                ", currentStudents=" + currentStudents +
                 ", feePerSession=" + feePerSession +
-                ", schedule='" + schedule + '\'' +
                 ", status='" + status + '\'' +
+                ", classType='" + classType + '\'' +
                 '}';
     }
 }

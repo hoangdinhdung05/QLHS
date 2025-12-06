@@ -59,4 +59,21 @@ public interface StudentService {
      * Sắp xếp giảm dần theo điểm tổng kết
      */
     void sortByScoreDesc();
+    
+    // ============ NEW METHODS FOR CRUD OPERATIONS ============
+    
+    /**
+     * Tìm học sinh theo mã học sinh
+     */
+    Optional<Student> findByStudentCode(String studentCode);
+    
+    /**
+     * Cập nhật thông tin học sinh
+     */
+    Student updateStudentNew(Student student);
+    
+    /**
+     * Xóa học sinh theo ID
+     */
+    boolean deleteStudentById(Long id);
 }

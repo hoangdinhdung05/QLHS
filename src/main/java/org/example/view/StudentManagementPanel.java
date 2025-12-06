@@ -22,7 +22,7 @@ public class StudentManagementPanel extends JPanel {
     private JComboBox<String> statusFilter;
     
     private final String[] columnNames = {
-        "Mã HS", "Họ và Tên", "Ngày Sinh", "Giới Tính", 
+        "STT", "Mã HS", "Họ và Tên", "Ngày Sinh", "Giới Tính", 
         "SĐT", "SĐT Phụ Huynh", "Trạng Thái"
     };
     
@@ -96,10 +96,18 @@ public class StudentManagementPanel extends JPanel {
         JButton refreshBtn = createStyledButton("🔄 Refresh", new Color(108, 117, 125));
         refreshBtn.addActionListener(e -> loadStudents());
         
+        JButton exportBtn = createStyledButton("📊 Xuất Excel", new Color(23, 162, 184));
+        exportBtn.addActionListener(e -> exportToExcel());
+        
+        JButton exportPdfBtn = createStyledButton("📄 Xuất PDF", new Color(220, 53, 69));
+        exportPdfBtn.addActionListener(e -> exportToPdf());
+        
         bottomRow.add(addBtn);
         bottomRow.add(editBtn);
         bottomRow.add(deleteBtn);
         bottomRow.add(refreshBtn);
+        bottomRow.add(exportBtn);
+        bottomRow.add(exportPdfBtn);
         
         toolbar.add(topRow);
         toolbar.add(bottomRow);
@@ -163,13 +171,14 @@ public class StudentManagementPanel extends JPanel {
         // Center alignment for some columns
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // Mã HS
-        table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer); // Ngày sinh
-        table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer); // Giới tính
-        table.getColumnModel().getColumn(6).setCellRenderer(centerRenderer); // Trạng thái
+        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // STT
+        table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer); // Mã HS
+        table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer); // Ngày sinh
+        table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer); // Giới tính
+        table.getColumnModel().getColumn(7).setCellRenderer(centerRenderer); // Trạng thái
         
         // Custom renderer for status
-        table.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
+        table.getColumnModel().getColumn(7).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
@@ -190,13 +199,14 @@ public class StudentManagementPanel extends JPanel {
         });
         
         // Column widths
-        table.getColumnModel().getColumn(0).setPreferredWidth(80);  // Mã HS
-        table.getColumnModel().getColumn(1).setPreferredWidth(180); // Họ tên
-        table.getColumnModel().getColumn(2).setPreferredWidth(100); // Ngày sinh
-        table.getColumnModel().getColumn(3).setPreferredWidth(80);  // Giới tính
-        table.getColumnModel().getColumn(4).setPreferredWidth(110); // SĐT
-        table.getColumnModel().getColumn(5).setPreferredWidth(120); // SĐT PH
-        table.getColumnModel().getColumn(6).setPreferredWidth(100); // Trạng thái
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);  // STT
+        table.getColumnModel().getColumn(1).setPreferredWidth(80);  // Mã HS
+        table.getColumnModel().getColumn(2).setPreferredWidth(180); // Họ tên
+        table.getColumnModel().getColumn(3).setPreferredWidth(100); // Ngày sinh
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Giới tính
+        table.getColumnModel().getColumn(5).setPreferredWidth(110); // SĐT
+        table.getColumnModel().getColumn(6).setPreferredWidth(120); // SĐT PH
+        table.getColumnModel().getColumn(7).setPreferredWidth(100); // Trạng thái
         
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -247,8 +257,10 @@ public class StudentManagementPanel extends JPanel {
             List<Student> students = studentService.getAllStudents();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             
+            int stt = 1;
             for (Student student : students) {
                 Object[] row = {
+                    stt++,
                     student.getStudentCode(),
                     student.getFullName(),
                     student.getDateOfBirth() != null ? student.getDateOfBirth().format(formatter) : "",
@@ -280,8 +292,10 @@ public class StudentManagementPanel extends JPanel {
             List<Student> students = studentService.searchByMaSV(keyword);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             
+            int stt = 1;
             for (Student student : students) {
                 Object[] row = {
+                    stt++,
                     student.getStudentCode(),
                     student.getFullName(),
                     student.getDateOfBirth() != null ? student.getDateOfBirth().format(formatter) : "",
@@ -345,9 +359,100 @@ public class StudentManagementPanel extends JPanel {
     }
     
     private void showAddStudentDialog() {
-        JOptionPane.showMessageDialog(this,
-            "Chức năng thêm học sinh đang được phát triển...",
-            "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Thêm học sinh mới", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setSize(500, 550);
+        dialog.setLocationRelativeTo(this);
+        
+        // Form panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        
+        // Fields
+        JTextField codeField = new JTextField(20);
+        JTextField nameField = new JTextField(20);
+        JTextField dobField = new JTextField(20); // dd/MM/yyyy
+        JComboBox<String> genderBox = new JComboBox<>(new String[]{"Nam", "Nữ"});
+        JTextField phoneField = new JTextField(20);
+        JTextField addressField = new JTextField(20);
+        JTextField parentNameField = new JTextField(20);
+        JTextField parentPhoneField = new JTextField(20);
+        JComboBox<String> statusBox = new JComboBox<>(new String[]{"Đang học", "Đã nghỉ"});
+        
+        // Add components
+        addFormField(formPanel, gbc, 0, "Mã học sinh: *", codeField);
+        addFormField(formPanel, gbc, 1, "Họ và tên: *", nameField);
+        addFormField(formPanel, gbc, 2, "Ngày sinh (dd/MM/yyyy):", dobField);
+        addFormField(formPanel, gbc, 3, "Giới tính:", genderBox);
+        addFormField(formPanel, gbc, 4, "Số điện thoại:", phoneField);
+        addFormField(formPanel, gbc, 5, "Địa chỉ:", addressField);
+        addFormField(formPanel, gbc, 6, "Tên phụ huynh:", parentNameField);
+        addFormField(formPanel, gbc, 7, "SĐT phụ huynh: *", parentPhoneField);
+        addFormField(formPanel, gbc, 8, "Trạng thái:", statusBox);
+        
+        dialog.add(formPanel, BorderLayout.CENTER);
+        
+        // Button panel
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JButton saveBtn = createStyledButton("💾 Lưu", new Color(40, 167, 69));
+        JButton cancelBtn = createStyledButton("❌ Hủy", new Color(108, 117, 125));
+        
+        saveBtn.addActionListener(e -> {
+            try {
+                // Validation
+                if (codeField.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "Vui lòng nhập mã học sinh!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (nameField.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "Vui lòng nhập họ tên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (parentPhoneField.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "Vui lòng nhập SĐT phụ huynh!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                // Create student
+                Student student = new Student();
+                student.setStudentCode(codeField.getText().trim());
+                student.setFullName(nameField.getText().trim());
+                
+                // Parse date if provided
+                if (!dobField.getText().trim().isEmpty()) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                    student.setDateOfBirth(LocalDate.parse(dobField.getText().trim(), formatter));
+                }
+                
+                student.setGender((String) genderBox.getSelectedItem());
+                student.setPhone(phoneField.getText().trim());
+                student.setAddress(addressField.getText().trim());
+                student.setParentName(parentNameField.getText().trim());
+                student.setParentPhone(parentPhoneField.getText().trim());
+                student.setStatus("Đang học".equals(statusBox.getSelectedItem()) ? "ACTIVE" : "INACTIVE");
+                
+                // Save
+                studentService.createStudent(student);
+                
+                JOptionPane.showMessageDialog(dialog, "Thêm học sinh thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                dialog.dispose();
+                loadStudents();
+                
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        
+        btnPanel.add(saveBtn);
+        btnPanel.add(cancelBtn);
+        dialog.add(btnPanel, BorderLayout.SOUTH);
+        
+        dialog.setVisible(true);
     }
     
     private void showEditStudentDialog() {
@@ -359,10 +464,127 @@ public class StudentManagementPanel extends JPanel {
             return;
         }
         
-        String studentCode = (String) tableModel.getValueAt(selectedRow, 0);
-        JOptionPane.showMessageDialog(this,
-            "Chức năng sửa thông tin học sinh " + studentCode + " đang được phát triển...",
-            "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        String studentCode = (String) tableModel.getValueAt(selectedRow, 1); // Column 1 is now student code
+        
+        try {
+            // Find student
+            Student student = studentService.findByStudentCode(studentCode)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh!"));
+            
+            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Sửa thông tin học sinh", true);
+            dialog.setLayout(new BorderLayout(10, 10));
+            dialog.setSize(500, 550);
+            dialog.setLocationRelativeTo(this);
+            
+            // Form panel
+            JPanel formPanel = new JPanel(new GridBagLayout());
+            formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.insets = new Insets(5, 5, 5, 5);
+            
+            // Fields with existing data
+            JTextField codeField = new JTextField(20);
+            codeField.setText(student.getStudentCode());
+            codeField.setEditable(false); // Don't allow changing code
+            
+            JTextField nameField = new JTextField(20);
+            nameField.setText(student.getFullName());
+            
+            JTextField dobField = new JTextField(20);
+            if (student.getDateOfBirth() != null) {
+                dobField.setText(student.getDateOfBirth().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            }
+            
+            JComboBox<String> genderBox = new JComboBox<>(new String[]{"Nam", "Nữ"});
+            genderBox.setSelectedItem(student.getGender());
+            
+            JTextField phoneField = new JTextField(20);
+            phoneField.setText(student.getPhone() != null ? student.getPhone() : "");
+            
+            JTextField addressField = new JTextField(20);
+            addressField.setText(student.getAddress() != null ? student.getAddress() : "");
+            
+            JTextField parentNameField = new JTextField(20);
+            parentNameField.setText(student.getParentName() != null ? student.getParentName() : "");
+            
+            JTextField parentPhoneField = new JTextField(20);
+            parentPhoneField.setText(student.getParentPhone());
+            
+            JComboBox<String> statusBox = new JComboBox<>(new String[]{"Đang học", "Đã nghỉ"});
+            statusBox.setSelectedItem("ACTIVE".equals(student.getStatus()) ? "Đang học" : "Đã nghỉ");
+            
+            // Add components
+            addFormField(formPanel, gbc, 0, "Mã học sinh: *", codeField);
+            addFormField(formPanel, gbc, 1, "Họ và tên: *", nameField);
+            addFormField(formPanel, gbc, 2, "Ngày sinh (dd/MM/yyyy):", dobField);
+            addFormField(formPanel, gbc, 3, "Giới tính:", genderBox);
+            addFormField(formPanel, gbc, 4, "Số điện thoại:", phoneField);
+            addFormField(formPanel, gbc, 5, "Địa chỉ:", addressField);
+            addFormField(formPanel, gbc, 6, "Tên phụ huynh:", parentNameField);
+            addFormField(formPanel, gbc, 7, "SĐT phụ huynh: *", parentPhoneField);
+            addFormField(formPanel, gbc, 8, "Trạng thái:", statusBox);
+            
+            dialog.add(formPanel, BorderLayout.CENTER);
+            
+            // Button panel
+            JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            JButton saveBtn = createStyledButton("💾 Lưu", new Color(40, 167, 69));
+            JButton cancelBtn = createStyledButton("❌ Hủy", new Color(108, 117, 125));
+            
+            saveBtn.addActionListener(e -> {
+                try {
+                    // Validation
+                    if (nameField.getText().trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(dialog, "Vui lòng nhập họ tên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if (parentPhoneField.getText().trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(dialog, "Vui lòng nhập SĐT phụ huynh!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    // Update student
+                    student.setFullName(nameField.getText().trim());
+                    
+                    // Parse date if provided
+                    if (!dobField.getText().trim().isEmpty()) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        student.setDateOfBirth(LocalDate.parse(dobField.getText().trim(), formatter));
+                    } else {
+                        student.setDateOfBirth(null);
+                    }
+                    
+                    student.setGender((String) genderBox.getSelectedItem());
+                    student.setPhone(phoneField.getText().trim());
+                    student.setAddress(addressField.getText().trim());
+                    student.setParentName(parentNameField.getText().trim());
+                    student.setParentPhone(parentPhoneField.getText().trim());
+                    student.setStatus("Đang học".equals(statusBox.getSelectedItem()) ? "ACTIVE" : "INACTIVE");
+                    
+                    // Save
+                    studentService.updateStudentNew(student);
+                    
+                    JOptionPane.showMessageDialog(dialog, "Cập nhật thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                    dialog.dispose();
+                    loadStudents();
+                    
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(dialog, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            
+            cancelBtn.addActionListener(e -> dialog.dispose());
+            
+            btnPanel.add(saveBtn);
+            btnPanel.add(cancelBtn);
+            dialog.add(btnPanel, BorderLayout.SOUTH);
+            
+            dialog.setVisible(true);
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void deleteStudent() {
@@ -374,17 +596,37 @@ public class StudentManagementPanel extends JPanel {
             return;
         }
         
-        String studentCode = (String) tableModel.getValueAt(selectedRow, 0);
-        String studentName = (String) tableModel.getValueAt(selectedRow, 1);
+        String studentCode = (String) tableModel.getValueAt(selectedRow, 1); // Column 1 is now student code
+        String studentName = (String) tableModel.getValueAt(selectedRow, 2); // Column 2 is now student name
         
         int confirm = JOptionPane.showConfirmDialog(this,
-            "Bạn có chắc chắn muốn xóa học sinh:\n" + studentCode + " - " + studentName + "?",
+            "Bạn có chắc chắn muốn xóa học sinh:\n" + studentCode + " - " + studentName + "?\n\nLưu ý: Thao tác này không thể hoàn tác!",
             "Xác nhận xóa", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         
         if (confirm == JOptionPane.YES_OPTION) {
-            JOptionPane.showMessageDialog(this,
-                "Chức năng xóa đang được phát triển...",
-                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            try {
+                // Find student and delete
+                Student student = studentService.findByStudentCode(studentCode)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh!"));
+                
+                boolean deleted = studentService.deleteStudentById(student.getId());
+                
+                if (deleted) {
+                    JOptionPane.showMessageDialog(this,
+                        "Xóa học sinh thành công!",
+                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                    loadStudents();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                        "Không thể xóa học sinh!",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+                
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Lỗi khi xóa học sinh: " + ex.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
     
@@ -392,6 +634,119 @@ public class StudentManagementPanel extends JPanel {
         Component[] components = ((JPanel) getComponent(2)).getComponents();
         if (components.length > 0 && components[0] instanceof JLabel) {
             ((JLabel) components[0]).setText("Tổng số học sinh: " + count);
+        }
+    }
+    
+    /**
+     * Helper method to add form fields to dialog
+     */
+    private void addFormField(JPanel panel, GridBagConstraints gbc, int row, String label, JComponent field) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.weightx = 0.3;
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        panel.add(lbl, gbc);
+        
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        panel.add(field, gbc);
+    }
+    
+    /**
+     * Export student list to Excel
+     */
+    private void exportToExcel() {
+        try {
+            List<Student> students = studentService.getAllStudents();
+            
+            if (students.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Không có dữ liệu để xuất!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Create file chooser
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Lưu file Excel");
+            fileChooser.setSelectedFile(new java.io.File("DanhSachHocSinh_" + 
+                LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy")) + ".xlsx"));
+            
+            int userSelection = fileChooser.showSaveDialog(this);
+            
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                    filePath += ".xlsx";
+                }
+                
+                // Export using ExcelExporter utility
+                org.example.util.ExcelExporter.exportStudentsToExcel(students, filePath);
+                
+                int choice = JOptionPane.showConfirmDialog(this,
+                    "Xuất file thành công!\nBạn có muốn mở file?",
+                    "Thành công", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                
+                if (choice == JOptionPane.YES_OPTION) {
+                    Desktop.getDesktop().open(new java.io.File(filePath));
+                }
+            }
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                "Lỗi khi xuất file Excel: " + ex.getMessage(),
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * Export student list to PDF
+     */
+    private void exportToPdf() {
+        try {
+            List<Student> students = studentService.getAllStudents();
+            
+            if (students.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Không có dữ liệu để xuất!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Create file chooser
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Lưu file PDF");
+            fileChooser.setSelectedFile(new java.io.File("DanhSachHocSinh_" + 
+                LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy")) + ".pdf"));
+            
+            int userSelection = fileChooser.showSaveDialog(this);
+            
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".pdf")) {
+                    filePath += ".pdf";
+                }
+                
+                // Export using PdfExporter utility
+                org.example.util.PdfExporter.exportStudentsToPdf(students, filePath);
+                
+                int choice = JOptionPane.showConfirmDialog(this,
+                    "Xuất file PDF thành công!\nBạn có muốn mở file?",
+                    "Thành công", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                
+                if (choice == JOptionPane.YES_OPTION) {
+                    Desktop.getDesktop().open(new java.io.File(filePath));
+                }
+            }
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                "Lỗi khi xuất file PDF: " + ex.getMessage(),
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 }
